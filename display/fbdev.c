@@ -195,6 +195,20 @@ void fbdev_flush(lv_disp_drv_t * drv, const lv_area_t * area, lv_color_t * color
     long int byte_location = 0;
     unsigned char bit_location = 0;
 
+#if 1
+    int32_t y;
+    for (y = act_y1; y <= act_y2; y++) {
+	    location = (act_x1 + vinfo.xoffset) * 3 + (y + vinfo.yoffset) * finfo.line_length;
+	    unsigned char *color_p_8 = (unsigned char *)color_p;
+	    int32_t x;
+	    for (x = act_x1; x <= act_x2; x++) {
+		    memcpy(&fbp[location], color_p_8, 3);
+		    location += 3;
+		    color_p_8 += 4;
+	    }
+	    color_p += w;
+    }
+#else
     /*32 or 24 bit per pixel*/
     if(vinfo.bits_per_pixel == 32 || vinfo.bits_per_pixel == 24) {
         uint32_t * fbp32 = (uint32_t *)fbp;
@@ -245,6 +259,7 @@ void fbdev_flush(lv_disp_drv_t * drv, const lv_area_t * area, lv_color_t * color
     } else {
         /*Not supported bit per pixel*/
     }
+#endif
 
     //May be some direct update command is required
     //ret = ioctl(state->fd, FBIO_UPDATE, (unsigned long)((uintptr_t)rect));
